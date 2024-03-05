@@ -18,7 +18,7 @@ const io = new Server(server, {
     credentials: true,
   },
 });
-
+//this is cors
 app.use(cors());
 app.use(compression({ threshold: 2048 }));
 app.use(json());
