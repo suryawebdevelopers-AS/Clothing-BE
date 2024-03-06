@@ -27,39 +27,39 @@ const upload = multer({
 });
 
 const ProductsController = {
-  async getAllProducts(request, reply) {
+  async getAllProducts(req, res) {
     try {
       const products = await Product.find(); // Use Product model to query the database
-      reply.code(200).send(products);
+      res.status(200).send(products);
     } catch (error) {
-      reply.code(500).send(error);
+      res.status(500).send(error);
     }
   },
 
-  async getProductById(request, reply) {
+  async getProductById(req, res) {
     try {
-      const { id } = request.params; // Get product ID from request parameter
+      const { id } = req.params; // Get product ID from request parameter
       const product = await Product.findById(id); // Use Product model to query the database
       if (!product) {
-        return reply.code(404).send({ message: "Product not found" });
+        return res.status(404).send({ message: "Product not found" });
       }
-      reply.code(200).send(product);
+      res.status(200).send(product);
     } catch (error) {
-      reply.code(500).send(error);
+      res.status(500).send(error);
     }
   },
 
-  async createProduct(request, reply) {
+  async createProduct(req, res) {
     try {
-      upload.single("image")(request, reply, async (err) => {
+      upload.single("image")(req, res, async (err) => {
         if (err) {
-          return reply.code(400).send(err);
+          return res.status(400).send(err);
         }
 
-        const base64Image = request.file.buffer.toString("base64");
+        const base64Image = req.file.buffer.toString("base64");
 
         const newProductData = {
-          ...request.body,
+          ...req.body,
           image: base64Image,
         };
 
@@ -67,26 +67,26 @@ const ProductsController = {
 
         await newProduct.save();
 
-        reply.code(201).send(newProduct);
+        res.status(201).send(newProduct);
       });
     } catch (error) {
-      reply.code(400).send(error);
+      res.status(400).send(error);
     }
   },
 
-  async updateProduct(request, reply) {
+  async updateProduct(req, res) {
     try {
-      const { id } = request.params;
+      const { id } = req.params;
 
       // Convert incoming images to base64 format
       const convertImagesToBase64 = () => {
         const base64Images = [];
-        if (request.body.images) {
-          for (const image of request.body.images) {
+        if (req.body.images) {
+          for (const image of req.body.images) {
             base64Images.push(Buffer.from(image, "base64").toString("base64"));
           }
-        } else if (request.files) {
-          for (const file of request.files) {
+        } else if (req.files) {
+          for (const file of req.files) {
             base64Images.push(file.buffer.toString("base64"));
           }
         }
@@ -94,7 +94,7 @@ const ProductsController = {
       };
 
       // Update the product
-      const updates = request.body;
+      const updates = req.body;
       updates.images = convertImagesToBase64(); // Add or update the 'images' field
       const options = { new: true }; // Return the updated product
       const updatedProduct = await Product.findByIdAndUpdate(
@@ -104,31 +104,32 @@ const ProductsController = {
       );
 
       if (!updatedProduct) {
-        return reply.code(404).send({ message: "Product not found" });
+        return res.status(404).send({ message: "Product not found" });
       }
 
       // Save the product to the database
       await updatedProduct.save();
 
       // Send the product as a response
-      reply.code(200).send(updatedProduct);
+      res.status(200).send(updatedProduct);
     } catch (error) {
-      reply.code(400).send(error); // Handle validation errors
+      res.status(400).send(error); // Handle validation errors
     }
   },
 
-  async deleteProduct(request, reply) {
+  async deleteProduct(req, res) {
     try {
-      const { id } = request.params;
+      const { id } = req.params;
       const deletedProduct = await Product.findByIdAndDelete(id); // Use Product model to query the database
       if (!deletedProduct) {
-        return reply.code(404).send({ message: "Product not found" });
+        return res.status(404).send({ message: "Product not found" });
       }
-      reply.code(204).send(); // No content response for successful deletion
+      res.status(204).send(); // No content response for successful deletion
     } catch (error) {
-      reply.code(500).send(error);
+      res.status(500).send(error);
     }
   },
+
   async searchProducts(searchTerm) {
     try {
       const filter = { name: { $regex: searchTerm, $options: "i" } };
