@@ -1,3 +1,4 @@
+// models/Products.js
 import { Schema, model } from "mongoose";
 
 const productSchema = new Schema({
@@ -9,10 +10,10 @@ const productSchema = new Schema({
   fabric: String,
   fit: String,
   washcare: String,
-  image1: Buffer,
-  image2: Buffer,
-  image3: Buffer,
-  image4: Buffer,
+  image1: { type: Buffer }, // Separate fields for each image
+  image2: { type: Buffer },
+  image3: { type: Buffer },
+  image4: { type: Buffer },
   category: { type: String, required: true },
   subCategory: { type: String, required: true },
 });
