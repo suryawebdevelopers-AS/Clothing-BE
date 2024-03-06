@@ -3,56 +3,62 @@ import Product from "../models/Products.js";
 import multer from "multer";
 
 // Set up multer for parsing multipart/form-data
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Set the destination folder for file uploads
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname); // Use the original file name for storing
-  },
-});
-
-const upload = multer({ storage: storage });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage }).any(); // Use .any() to handle any type of file
 
 // Create a new product
 export const createProduct = async (req, res) => {
   try {
-    const {
-      name,
-      price,
-      sizes,
-      color,
-      description,
-      fabric,
-      fit,
-      washcare,
-      category,
-      subCategory,
-    } = req.body;
+    // Call multer middleware to handle file uploads
+    upload(req, res, async (err) => {
+      if (err) {
+        console.error("Error uploading files:", err.message);
+        return res.status(500).json({ error: "Error uploading files" });
+      }
 
-    const images = {
-      image1: req.files["image1"] ? req.files["image1"][0].filename : undefined,
-      image2: req.files["image2"] ? req.files["image2"][0].filename : undefined,
-      image3: req.files["image3"] ? req.files["image3"][0].filename : undefined,
-      image4: req.files["image4"] ? req.files["image4"][0].filename : undefined,
-    };
+      const {
+        name,
+        price,
+        sizes,
+        color,
+        description,
+        fabric,
+        fit,
+        washcare,
+        category,
+        subCategory,
+      } = req.body;
 
-    const product = new Product({
-      name,
-      price,
-      sizes,
-      color,
-      description,
-      fabric,
-      fit,
-      washcare,
-      category,
-      subCategory,
-      ...images,
+      // Assuming you send each image independently with field names "image1", "image2", etc.
+      const images = [];
+      for (let i = 1; i <= 4; i++) {
+        const fieldName = `image${i}`;
+        if (
+          req.files &&
+          req.files.length > 0 &&
+          req.files[0].fieldname === fieldName
+        ) {
+          images.push({ [fieldName]: req.files[0].buffer.toString("base64") });
+        }
+      }
+
+      const product = new Product({
+        name,
+        price,
+        sizes,
+        color,
+        description,
+        fabric,
+        fit,
+        washcare,
+        category,
+        subCategory,
+        ...Object.assign({}, ...images),
+      });
+
+      await product.save();
+      res.status(201).json(product);
     });
-
-    await product.save();
-    res.status(201).json(product);
   } catch (error) {
     console.error("Error creating product:", error.message);
     res.status(500).json({ error: "Error creating product" });
