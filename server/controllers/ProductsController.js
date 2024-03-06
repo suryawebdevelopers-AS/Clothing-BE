@@ -30,15 +30,14 @@ export const createProduct = async (req, res) => {
       } = req.body;
 
       // Assuming you send each image independently with field names "image1", "image2", etc.
-      const images = [];
+      // Assuming you send each image independently with field names "image1", "image2", etc.
+      const images = {};
       for (let i = 1; i <= 4; i++) {
         const fieldName = `image${i}`;
-        if (
-          req.files &&
-          req.files.length > 0 &&
-          req.files[0].fieldname === fieldName
-        ) {
-          images.push({ [fieldName]: req.files[0].buffer.toString("base64") });
+        const file = req.files.find((file) => file.fieldname === fieldName);
+
+        if (file) {
+          images[fieldName] = file.buffer.toString("base64");
         }
       }
 
@@ -53,9 +52,8 @@ export const createProduct = async (req, res) => {
         washcare,
         category,
         subCategory,
-        ...Object.assign({}, ...images),
+        ...images,
       });
-
       await product.save();
       res.status(201).json(product);
     });
