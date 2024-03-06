@@ -15,8 +15,18 @@ export const createProduct = async (req, res) => {
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
-    res.status(200).json(products);
+    const products = await Product.find().lean();
+
+    // Convert image buffers to Base64
+    const productsWithBase64Images = products.map((product) => ({
+      ...product,
+      image1: product.image1.toString("base64"),
+      image2: product.image2.toString("base64"),
+      image3: product.image3.toString("base64"),
+      image4: product.image4.toString("base64"),
+    }));
+
+    res.status(200).json(productsWithBase64Images);
   } catch (error) {
     res.status(500).json({ error: "Error fetching products" });
   }
