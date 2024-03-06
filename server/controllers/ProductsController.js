@@ -66,24 +66,19 @@ export const createProduct = async (req, res) => {
 // Get all products
 export const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find().lean();
+    // Fetch all products from the database
+    const products = await Product.find();
 
-    // Convert image buffers to Base64 for each product
-    const productsWithBase64Images = products.map((product) => {
-      const productWithBase64Images = { ...product };
-      for (let i = 1; i <= 4; i++) {
-        const fieldName = `image${i}`;
-        if (product[fieldName]) {
-          productWithBase64Images[fieldName] =
-            product[fieldName].toString("base64");
-        }
-      }
-      return productWithBase64Images;
-    });
+    // Check if there are any products
+    if (products.length === 0) {
+      return res.status(404).json({ message: "No products found" });
+    }
 
-    res.status(200).json(productsWithBase64Images);
+    // Return the list of products
+    res.status(200).json(products);
   } catch (error) {
-    res.status(500).json({ error: "Error fetching products" });
+    console.error("Error getting all products:", error.message);
+    res.status(500).json({ error: "Error getting all products" });
   }
 };
 
