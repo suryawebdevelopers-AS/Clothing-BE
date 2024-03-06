@@ -1,10 +1,22 @@
 // Import required modules
-import { Router } from "express";
+import express from "express";
 import UserController from "./controllers/UserController.js";
-import ProductsController from "./controllers/ProductsController.js";
+import {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  updateProductById,
+  deleteProductById,
+} from "./controllers/ProductsController.js";
 
-// Create a new router instance
-const router = Router();
+const router = express.Router();
+
+// CRUD endpoints
+router.post("/addproduct", createProduct);
+router.get("/getallproduct", getAllProducts);
+router.get("getproduct/:id", getProductById);
+router.put("updateproduct/:id", updateProductById);
+router.delete("deleteproduct/:id", deleteProductById);
 
 // Define routes with clear comments
 router.get("/", (req, res) => {
@@ -15,12 +27,4 @@ router.get("/", (req, res) => {
 router.get("/users", UserController.getAllUsers);
 router.post("/users", UserController.createUser);
 
-// Product routes
-router.get("/getallproducts", ProductsController.getAllProducts);
-router.get("/getproducts/:id", ProductsController.getProductById);
-router.post("/addproducts", ProductsController.createProduct);
-router.put("/products/:id", ProductsController.updateProduct);
-router.delete("/products/:id", ProductsController.deleteProduct);
-router.get("/search", ProductsController.handleSearch);
-// Export the router for use in the main app
 export default router;
