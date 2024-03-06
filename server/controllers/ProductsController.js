@@ -38,7 +38,7 @@ const ProductsController = {
 
   async getProductById(req, res) {
     try {
-      const { id } = req.params; // Get product ID from request parameter
+      const { id } = req.params; // Get product ID from the request parameter
       const product = await Product.findById(id); // Use Product model to query the database
       if (!product) {
         return res.status(404).send({ message: "Product not found" });
@@ -76,42 +76,42 @@ const ProductsController = {
 
   async updateProduct(req, res) {
     try {
-      const { id } = req.params;
-
-      // Convert incoming images to base64 format
-      const convertImagesToBase64 = () => {
-        const base64Images = [];
-        if (req.body.images) {
-          for (const image of req.body.images) {
-            base64Images.push(Buffer.from(image, "base64").toString("base64"));
-          }
-        } else if (req.files) {
-          for (const file of req.files) {
-            base64Images.push(file.buffer.toString("base64"));
-          }
+      upload.array("images", 4)(req, res, async (err) => {
+        if (err) {
+          return res.status(400).send(err);
         }
-        return base64Images;
-      };
 
-      // Update the product
-      const updates = req.body;
-      updates.images = convertImagesToBase64(); // Add or update the 'images' field
-      const options = { new: true }; // Return the updated product
-      const updatedProduct = await Product.findByIdAndUpdate(
-        id,
-        updates,
-        options
-      );
+        // Convert incoming images to base64 format
+        const convertImagesToBase64 = () => {
+          const base64Images = [];
+          if (req.files) {
+            for (const file of req.files) {
+              base64Images.push(file.buffer.toString("base64"));
+            }
+          }
+          return base64Images;
+        };
 
-      if (!updatedProduct) {
-        return res.status(404).send({ message: "Product not found" });
-      }
+        // Update the product
+        const updates = req.body;
+        updates.images = convertImagesToBase64(); // Add or update the 'images' field
+        const options = { new: true }; // Return the updated product
+        const updatedProduct = await Product.findByIdAndUpdate(
+          req.params.id,
+          updates,
+          options
+        );
 
-      // Save the product to the database
-      await updatedProduct.save();
+        if (!updatedProduct) {
+          return res.status(404).send({ message: "Product not found" });
+        }
 
-      // Send the product as a response
-      res.status(200).send(updatedProduct);
+        // Save the product to the database
+        await updatedProduct.save();
+
+        // Send the product as a response
+        res.status(200).send(updatedProduct);
+      });
     } catch (error) {
       res.status(400).send(error); // Handle validation errors
     }
