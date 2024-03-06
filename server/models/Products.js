@@ -10,7 +10,7 @@ const productSchema = new Schema({
   fabric: String,
   fit: String,
   washcare: String,
-  image1: { type: Buffer }, // Separate fields for each image
+  image1: { type: Buffer },
   image2: { type: Buffer },
   image3: { type: Buffer },
   image4: { type: Buffer },

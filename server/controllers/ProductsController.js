@@ -3,7 +3,6 @@ import Product from "../models/Products.js";
 import multer from "multer";
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
 
 // Create a new product
 export const createProduct = async (req, res) => {
