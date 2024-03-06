@@ -1,53 +1,59 @@
-// controllers/productController.js
 import Product from "../models/Products.js";
 import multer from "multer";
 
+// Set up multer for parsing multipart/form-data
 const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 // Create a new product
 export const createProduct = async (req, res) => {
   try {
-    const {
-      name,
-      price,
-      sizes,
-      color,
-      description,
-      fabric,
-      fit,
-      washcare,
-      category,
-      subCategory,
-    } = req.body;
-
-    const images = [];
-
-    // Iterate through the possible image fields (image1, image2, ...)
-    for (let i = 1; i <= 4; i++) {
-      const fieldName = `image${i}`;
-      if (req.files && req.files[fieldName]) {
-        images.push({
-          [fieldName]: req.files[fieldName][0].buffer.toString("base64"),
-        });
+    // Use multer middleware to handle file uploads
+    upload.any()(req, res, async (err) => {
+      if (err) {
+        console.error("Error uploading files:", err.message);
+        return res.status(500).json({ error: "Error uploading files" });
       }
-    }
 
-    const product = new Product({
-      name,
-      price,
-      sizes,
-      color,
-      description,
-      fabric,
-      fit,
-      washcare,
-      category,
-      subCategory,
-      ...Object.assign({}, ...images),
+      const {
+        name,
+        price,
+        sizes,
+        color,
+        description,
+        fabric,
+        fit,
+        washcare,
+        category,
+        subCategory,
+      } = req.body;
+
+      // Assuming you send each image independently with field names "image1", "image2", etc.
+      const images = [];
+      for (let i = 1; i <= 4; i++) {
+        const fieldName = `image${i}`;
+        if (req.files && req.files[fieldName]) {
+          images.push({ [fieldName]: req.files[fieldName][0].buffer });
+        }
+      }
+
+      const product = new Product({
+        name,
+        price,
+        sizes,
+        color,
+        description,
+        fabric,
+        fit,
+        washcare,
+        category,
+        subCategory,
+        ...Object.assign({}, ...images),
+      });
+
+      await product.save();
+      res.status(201).json(product);
     });
-
-    await product.save();
-    res.status(201).json(product);
   } catch (error) {
     console.error("Error creating product:", error.message);
     res.status(500).json({ error: "Error creating product" });
