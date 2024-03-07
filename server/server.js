@@ -11,24 +11,25 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
-app.use(cors());
-const io = new Server(server, {
-  cors: {
-    origin: ["*", "http://localhost:5173"],
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
 
-//this is cors
+// Centralized CORS configuration
+const corsOptions = {
+  origin: ["*", "http://localhost:5173"],
+  methods: ["GET", "POST"],
+  credentials: true,
+};
+app.use(cors(corsOptions));
 
 app.use(compression({ threshold: 2048 }));
 app.use(json());
 
+// MongoDB connection
 connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
-  .catch((error) => console.error(error));
+  .catch((error) => console.error("MongoDB connection error:", error));
 
+// Socket.IO setup
+const io = new Server(server, { cors: corsOptions });
 const messages = {};
 
 io.on("connection", (socket) => {
@@ -36,7 +37,10 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", (userId) => {
     socket.join(userId);
-    messages[userId] = [];
+    // Initialize user messages array if not present
+    if (!messages[userId]) {
+      messages[userId] = [];
+    }
   });
 
   socket.on("sendMessage", (message, userId) => {
@@ -51,8 +55,13 @@ io.on("connection", (socket) => {
 
 app.use("/", routes);
 
-const port = process.env.PORT || 3000;
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error("Global error:", err);
+  res.status(500).send("Internal Server Error");
+});
 
+const port = process.env.PORT || 3000;
 server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
