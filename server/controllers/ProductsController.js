@@ -1,6 +1,6 @@
 import Product from "../models/Products.js";
 import multer from "multer";
-
+import { Binary } from "mongodb";
 // Set up multer for parsing multipart/form-data
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).any(); // Use .any() to handle any type of file
@@ -36,7 +36,13 @@ export const createProduct = async (req, res) => {
         const file = req.files.find((file) => file.fieldname === fieldName);
 
         if (file) {
-          images[fieldName] = file.buffer.toString("base64");
+          // Remove the base64 prefix (e.g., 'data:image/jpeg;base64,')
+          const base64DataWithoutPrefix = file.buffer
+            .toString("base64")
+            .replace(/^data:image\/\w+;base64,/, "");
+
+          // Save the image data as Binary
+          images[fieldName] = Binary.createFromBase64(base64DataWithoutPrefix);
         }
       }
 
@@ -62,8 +68,6 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ error: "Error creating product" });
   }
 };
-
-// ... other functions remain unchanged
 
 // Get all products
 export const getAllProducts = async (req, res) => {
