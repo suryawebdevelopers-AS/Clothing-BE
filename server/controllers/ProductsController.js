@@ -29,8 +29,6 @@ export const createProduct = async (req, res) => {
         subCategory,
       } = req.body;
 
-      // Assuming you send each image independently with field names "image1", "image2", etc.
-      // Assuming you send each image independently with field names "image1", "image2", etc.
       const images = {};
       for (let i = 1; i <= 4; i++) {
         const fieldName = `image${i}`;
