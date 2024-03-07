@@ -11,6 +11,7 @@ dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
+app.use(cors());
 const io = new Server(server, {
   cors: {
     origin: ["*", "http://localhost:5173"],
@@ -20,7 +21,7 @@ const io = new Server(server, {
 });
 
 //this is cors
-app.use(cors());
+
 app.use(compression({ threshold: 2048 }));
 app.use(json());
 
