@@ -1,20 +1,35 @@
-import express, { json } from "express";
+import express from "express";
 import cors from "cors";
+import http from "http";
 import compression from "compression";
 import routes from "./routes.js";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
-import { Server } from "socket.io";
+import { Server as SocketIOServer } from "socket.io";
 
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
 
-// Updated CORS configuration to allow all origins
-app.use(cors());
+// CORS configuration for production
+const whitelist = ["http://localhost:3000", "http://localhost:5173"]; // Add your production domain here
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || whitelist.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST"],
+  credentials: true, // Enable credentials for cookies, authorization headers with HTTPS
+};
+
+app.use(cors(corsOptions));
 
 app.use(compression({ threshold: 2048 }));
-app.use(json());
+app.use(express.json()); // Ensure express.json() is used instead of json()
 
 // MongoDB connection
 connect(process.env.MONGO_URI)
@@ -22,12 +37,7 @@ connect(process.env.MONGO_URI)
   .catch((error) => console.error("MongoDB connection error:", error));
 
 // Socket.IO setup
-const io = new Server(app, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"],
-  },
-});
+const io = new SocketIOServer(server, { cors: corsOptions });
 const messages = {};
 
 io.on("connection", (socket) => {
@@ -35,7 +45,6 @@ io.on("connection", (socket) => {
 
   socket.on("joinRoom", (userId) => {
     socket.join(userId);
-    // Initialize user messages array if not present
     if (!messages[userId]) {
       messages[userId] = [];
     }
@@ -53,18 +62,13 @@ io.on("connection", (socket) => {
 
 app.use("/", routes);
 
-// Improved global error handler with more specific messages
+// Improved global error handler
 app.use((err, req, res, next) => {
   console.error("Global error:", err);
-
-  if (err.name === "CorsError") {
-    res.status(403).send("CORS request not allowed"); // Specific message for CORS errors
-  } else {
-    res.status(500).send("Internal Server Error"); // Generic message for other errors
-  }
+  res.status(err.status || 500).send(err.message || "Internal Server Error");
 });
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
