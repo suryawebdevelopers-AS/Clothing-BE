@@ -7,6 +7,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).any(); // Use .any() to handle any type of file
 
 // Create a new product
+// Create a new product
 export const createProduct = async (req, res) => {
   try {
     // Call multer middleware to handle file uploads
@@ -14,6 +15,11 @@ export const createProduct = async (req, res) => {
       if (err) {
         console.error("Error uploading files:", err.message);
         return res.status(500).json({ error: "Error uploading files" });
+      }
+
+      if (!req.files || req.files.length === 0) {
+        // No files were uploaded
+        return res.status(400).json({ error: "No files uploaded" });
       }
 
       const {
