@@ -1,4 +1,3 @@
-// controllers/productController.js
 import Product from "../models/Products.js";
 import multer from "multer";
 
@@ -6,11 +5,8 @@ import multer from "multer";
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).any(); // Use .any() to handle any type of file
 
-// Create a new product
-// Create a new product
 export const createProduct = async (req, res) => {
   try {
-    // Call multer middleware to handle file uploads
     upload(req, res, async (err) => {
       if (err) {
         console.error("Error uploading files:", err.message);
@@ -18,7 +14,6 @@ export const createProduct = async (req, res) => {
       }
 
       if (!req.files || req.files.length === 0) {
-        // No files were uploaded
         return res.status(400).json({ error: "No files uploaded" });
       }
 
@@ -58,6 +53,7 @@ export const createProduct = async (req, res) => {
         subCategory,
         ...images,
       });
+
       await product.save();
       res.status(201).json(product);
     });
@@ -66,6 +62,8 @@ export const createProduct = async (req, res) => {
     res.status(500).json({ error: "Error creating product" });
   }
 };
+
+// ... other functions remain unchanged
 
 // Get all products
 export const getAllProducts = async (req, res) => {
