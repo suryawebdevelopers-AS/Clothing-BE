@@ -31,7 +31,6 @@ export const createProduct = async (req, res) => {
       } = req.body;
 
       const images = {};
-      const images = {};
       for (let i = 1; i <= 4; i++) {
         const fieldName = `image${i}`;
         const file = req.files.find((file) => file.fieldname === fieldName);
