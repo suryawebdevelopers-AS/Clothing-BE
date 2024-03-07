@@ -2,14 +2,14 @@
 import { Schema, model } from "mongoose";
 
 const productSchema = new Schema({
-  name: { type: String, required: true },
+  productName: { type: String, required: true },
   price: { type: Number, required: true },
-  sizes: [String],
+  selectedSizes: [String],
   color: String,
   description: String,
   fabric: String,
   fit: String,
-  washcare: String,
+  washCare: String,
   image1: { type: String }, // Change type to String
   image2: { type: String }, // Change type to String
   image3: { type: String }, // Change type to String

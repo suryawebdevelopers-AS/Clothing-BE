@@ -23,14 +23,14 @@ export const createProduct = async (req, res) => {
       }
 
       const {
-        name,
+        productName,
         price,
-        sizes,
+        selectedSizes,
         color,
         description,
         fabric,
         fit,
-        washcare,
+        washCare,
         category,
         subCategory,
       } = req.body;
@@ -46,14 +46,14 @@ export const createProduct = async (req, res) => {
       }
 
       const product = new Product({
-        name,
+        productName,
         price,
-        sizes,
+        selectedSizes,
         color,
         description,
         fabric,
         fit,
-        washcare,
+        washCare,
         category,
         subCategory,
         ...images,
