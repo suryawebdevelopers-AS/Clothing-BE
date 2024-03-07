@@ -1,7 +1,6 @@
 import express, { json } from "express";
 import cors from "cors";
 import compression from "compression";
-import { Server } from "socket.io";
 import routes from "./routes.js";
 import http from "http";
 import { connect } from "mongoose";
@@ -12,13 +11,8 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// Centralized CORS configuration
-const corsOptions = {
-  origin: ["*", "http://localhost:5173"],
-  methods: ["GET", "POST"],
-  credentials: true,
-};
-app.use(cors(corsOptions));
+// Updated CORS configuration to allow all origins
+app.use(cors());
 
 app.use(compression({ threshold: 2048 }));
 app.use(json());
@@ -27,31 +21,6 @@ app.use(json());
 connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("MongoDB connection error:", error));
-
-// Socket.IO setup
-const io = new Server(server, { cors: corsOptions });
-const messages = {};
-
-io.on("connection", (socket) => {
-  console.log("User connected");
-
-  socket.on("joinRoom", (userId) => {
-    socket.join(userId);
-    // Initialize user messages array if not present
-    if (!messages[userId]) {
-      messages[userId] = [];
-    }
-  });
-
-  socket.on("sendMessage", (message, userId) => {
-    messages[userId].push({ message, userId });
-    io.to(userId).emit("receiveMessage", message, userId);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
-  });
-});
 
 app.use("/", routes);
 
