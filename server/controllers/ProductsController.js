@@ -1,9 +1,24 @@
 import Product from "../models/Products.js";
 import multer from "multer";
 import { Binary } from "mongodb";
+
 // Set up multer for parsing multipart/form-data
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage }).any(); // Use .any() to handle any type of file
+
+// Utility function to convert buffer to base64
+const bufferToBase64 = (buffer) => {
+  // Check if the input is already a base64 string
+  if (typeof buffer === "string") {
+    console.log("Input is already a base64 string:", buffer);
+    return buffer;
+  }
+
+  // If not, proceed with the conversion
+  const base64String = buffer.toString("base64");
+  console.log("Buffer converted to base64:", base64String);
+  return base64String;
+};
 
 export const createProduct = async (req, res) => {
   try {
@@ -61,6 +76,7 @@ export const createProduct = async (req, res) => {
       });
 
       await product.save();
+      console.log("Product created successfully:", product);
       res.status(201).json(product);
     });
   } catch (error) {
@@ -69,31 +85,28 @@ export const createProduct = async (req, res) => {
   }
 };
 
-// Get all products
-// Import your Product model and other necessary modules
-
 export const getAllProducts = async (req, res) => {
   try {
-    // Fetch all products from the database
     const products = await Product.find();
 
-    // Check if there are any products
     if (products.length === 0) {
       return res.status(404).json({ message: "No products found" });
     }
 
-    // Convert buffer to base64 for each image field in each product
     const productsWithBase64Images = products.map((product) => {
       return {
         ...product._doc,
-        image1: product.image1 ? bufferToBase64(product.image1.buffer) : null,
-        image2: product.image2 ? bufferToBase64(product.image2.buffer) : null,
-        image3: product.image3 ? bufferToBase64(product.image3.buffer) : null,
-        image4: product.image4 ? bufferToBase64(product.image4.buffer) : null,
+        image1: bufferToBase64(product.image1),
+        image2: bufferToBase64(product.image2),
+        image3: bufferToBase64(product.image3),
+        image4: bufferToBase64(product.image4),
       };
     });
 
-    // Return the list of products with base64 images
+    console.log(
+      "Products fetched successfully with base64 images:",
+      productsWithBase64Images
+    );
     res.status(200).json(productsWithBase64Images);
   } catch (error) {
     console.error("Error getting all products:", error.message);
@@ -101,14 +114,6 @@ export const getAllProducts = async (req, res) => {
   }
 };
 
-// Get a single product by ID
-const bufferToBase64 = (buffer) => {
-  return buffer.toString("base64");
-};
-
-// ...
-
-// Get a single product by ID with base64 images
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -118,47 +123,57 @@ export const getProductById = async (req, res) => {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Convert buffer to base64 for each image field
     const productWithBase64Images = {
       ...product._doc,
-      image1: product.image1 ? bufferToBase64(product.image1.buffer) : null,
-      image2: product.image2 ? bufferToBase64(product.image2.buffer) : null,
-      image3: product.image3 ? bufferToBase64(product.image3.buffer) : null,
-      image4: product.image4 ? bufferToBase64(product.image4.buffer) : null,
+      image1: bufferToBase64(product.image1),
+      image2: bufferToBase64(product.image2),
+      image3: bufferToBase64(product.image3),
+      image4: bufferToBase64(product.image4),
     };
 
+    console.log(
+      "Product fetched successfully by ID with base64 images:",
+      productWithBase64Images
+    );
     res.status(200).json(productWithBase64Images);
   } catch (error) {
+    console.error("Error fetching product:", error.message);
     res.status(500).json({ error: "Error fetching product" });
   }
 };
 
-// Update a product by ID
 export const updateProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findByIdAndUpdate(id, req.body, {
       new: true,
     });
+
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
+
+    console.log("Product updated successfully by ID:", product);
     res.status(200).json(product);
   } catch (error) {
+    console.error("Error updating product:", error.message);
     res.status(500).json({ error: "Error updating product" });
   }
 };
 
-// Delete a product by ID
 export const deleteProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findByIdAndRemove(id);
+
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
+
+    console.log("Product deleted successfully by ID:", product);
     res.status(204).json();
   } catch (error) {
+    console.error("Error deleting product:", error.message);
     res.status(500).json({ error: "Error deleting product" });
   }
 };
