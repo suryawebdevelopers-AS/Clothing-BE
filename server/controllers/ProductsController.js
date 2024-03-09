@@ -70,6 +70,8 @@ export const createProduct = async (req, res) => {
 };
 
 // Get all products
+// Import your Product model and other necessary modules
+
 export const getAllProducts = async (req, res) => {
   try {
     // Fetch all products from the database
@@ -80,8 +82,19 @@ export const getAllProducts = async (req, res) => {
       return res.status(404).json({ message: "No products found" });
     }
 
-    // Return the list of products
-    res.status(200).json(products);
+    // Convert buffer to base64 for each image field in each product
+    const productsWithBase64Images = products.map((product) => {
+      return {
+        ...product._doc,
+        image1: product.image1 ? bufferToBase64(product.image1.buffer) : null,
+        image2: product.image2 ? bufferToBase64(product.image2.buffer) : null,
+        image3: product.image3 ? bufferToBase64(product.image3.buffer) : null,
+        image4: product.image4 ? bufferToBase64(product.image4.buffer) : null,
+      };
+    });
+
+    // Return the list of products with base64 images
+    res.status(200).json(productsWithBase64Images);
   } catch (error) {
     console.error("Error getting all products:", error.message);
     res.status(500).json({ error: "Error getting all products" });
@@ -89,14 +102,32 @@ export const getAllProducts = async (req, res) => {
 };
 
 // Get a single product by ID
+const bufferToBase64 = (buffer) => {
+  return buffer.toString("base64");
+};
+
+// ...
+
+// Get a single product by ID with base64 images
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findById(id);
+
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
-    res.status(200).json(product);
+
+    // Convert buffer to base64 for each image field
+    const productWithBase64Images = {
+      ...product._doc,
+      image1: product.image1 ? bufferToBase64(product.image1.buffer) : null,
+      image2: product.image2 ? bufferToBase64(product.image2.buffer) : null,
+      image3: product.image3 ? bufferToBase64(product.image3.buffer) : null,
+      image4: product.image4 ? bufferToBase64(product.image4.buffer) : null,
+    };
+
+    res.status(200).json(productWithBase64Images);
   } catch (error) {
     res.status(500).json({ error: "Error fetching product" });
   }
