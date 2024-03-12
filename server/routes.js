@@ -16,7 +16,7 @@ router.post("/addproduct", createProduct);
 router.get("/getallproduct", getAllProducts);
 router.get("getproduct/:id", getProductById);
 router.put("updateproduct/:id", updateProductById);
-router.delete("deleteproduct/:id", deleteProductById);
+router.post("/deleteproduct/:id", deleteProductById);
 
 // Define routes with clear comments
 router.get("/", (req, res) => {

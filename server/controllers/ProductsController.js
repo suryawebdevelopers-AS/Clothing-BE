@@ -162,8 +162,10 @@ export const updateProductById = async (req, res) => {
 };
 
 export const deleteProductById = async (req, res) => {
-  const { id } = req.params;
+  const { id } = req.body; // Change to req.body to get the ID from the request body
   try {
+    console.log("Deleting product with ID:", id);
+
     const product = await Product.findByIdAndRemove(id);
 
     if (!product) {
