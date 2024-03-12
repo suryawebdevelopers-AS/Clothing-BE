@@ -161,7 +161,7 @@ export const updateProductById = async (req, res) => {
   }
 };
 
-export const deleteProductById = async (req, res) => {
+const deleteProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findByIdAndRemove(id);
@@ -174,6 +174,7 @@ export const deleteProductById = async (req, res) => {
     res.status(204).json();
   } catch (error) {
     console.error("Error deleting product:", error.message);
+    // Handle specific errors here, e.g., database connection errors
     res.status(500).json({ error: "Error deleting product" });
   }
 };
