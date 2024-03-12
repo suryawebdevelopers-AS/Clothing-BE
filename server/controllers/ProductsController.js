@@ -161,7 +161,7 @@ export const updateProductById = async (req, res) => {
   }
 };
 
-const deleteProductById = async (req, res) => {
+export const deleteProductById = async (req, res) => {
   const { id } = req.params;
   try {
     const product = await Product.findByIdAndRemove(id);
