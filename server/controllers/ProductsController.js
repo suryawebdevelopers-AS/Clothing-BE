@@ -162,7 +162,8 @@ export const updateProductById = async (req, res) => {
 };
 
 export const deleteProductById = async (req, res) => {
-  const { id } = req.body; // Change to req.body to get the ID from the request body
+  const { id } = req.params; // Access the ID from the request parameters
+
   try {
     console.log("Deleting product with ID:", id);
 
@@ -173,7 +174,7 @@ export const deleteProductById = async (req, res) => {
     }
 
     console.log("Product deleted successfully by ID:", product);
-    res.status(204).json();
+    res.status(204).json(); // No content response for successful deletion
   } catch (error) {
     console.error("Error deleting product:", error.message);
     // Handle specific errors here, e.g., database connection errors
