@@ -145,8 +145,8 @@ export const updateProductById = async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Find product by ID
     const product = await Product.findById(id);
+    console.log("Found product:", product); // Log if product exists
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
