@@ -11,7 +11,7 @@ import {
 
 const router = express.Router();
 
-// CRUD endpoints
+// CRUD endpoints for products
 router.post("/addproduct", createProduct);
 router.get("/getallproduct", getAllProducts);
 router.get("getproduct/:id", getProductById);
