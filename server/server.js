@@ -2,7 +2,6 @@ import express from "express";
 import cors from "cors";
 import http from "http";
 import compression from "compression";
-import routes from "./routes.js";
 import { connect } from "mongoose";
 import dotenv from "dotenv";
 import { Server as SocketIOServer } from "socket.io";
@@ -23,13 +22,15 @@ app.use(cors(corsOptions)); // Apply CORS middleware with the options
 app.use(compression({ threshold: 2048 }));
 app.use(express.json()); // Ensure express.json() is used instead of json()
 
-// MongoDB connection
-connect(process.env.MONGO_URI)
+// MongoDB connection without deprecated options
+connect(process.env.MONGO_URI || "YOUR_MONGO_URI")
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("MongoDB connection error:", error));
 
 // Socket.IO setup
 const io = new SocketIOServer(server, { cors: corsOptions });
+
+// Socket.IO logic
 const messages = {};
 
 io.on("connection", (socket) => {
@@ -51,8 +52,6 @@ io.on("connection", (socket) => {
     console.log("User disconnected");
   });
 });
-
-app.use("/", routes); // Assuming routes are defined in a separate routes.js file
 
 // Improved global error handler
 app.use((err, req, res, next) => {
