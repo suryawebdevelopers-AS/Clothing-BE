@@ -141,31 +141,33 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Error fetching product" });
   }
 };
-
 export const updateProductById = async (req, res) => {
   const { id } = req.params;
 
   try {
+    // Find product by ID
     const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    // Only update the specified fields in the request body
+    // Prepare update data (optional, can be outside the try-catch)
     const updatedFields = {};
     Object.keys(req.body).forEach((field) => {
       updatedFields[field] = req.body[field];
     });
 
+    // Update product with the specified fields
     const updatedProduct = await Product.findByIdAndUpdate(id, updatedFields, {
-      new: true,
+      new: true, // Return the updated product document
     });
 
     console.log("Product updated successfully by ID:", updatedProduct);
     res.status(200).json(updatedProduct);
   } catch (error) {
     console.error("Error updating product:", error.message);
+    // Handle specific errors here, e.g., validation errors
     res.status(400).json({ error: "Error updating product" });
   }
 };
