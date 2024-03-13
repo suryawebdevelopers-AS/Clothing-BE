@@ -174,7 +174,7 @@ export const deleteProductById = async (req, res) => {
     }
 
     console.log("Product deleted successfully by ID:", product);
-    res.status(204).json(); // No content response for successful deletion
+    res.status(200).json(); // No content response for successful deletion
   } catch (error) {
     console.error("Error deleting product:", error.message);
     // Handle specific errors here, e.g., database connection errors

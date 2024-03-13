@@ -12,21 +12,13 @@ dotenv.config();
 const app = express();
 const server = http.createServer(app);
 
-// CORS configuration for production
-const whitelist = ["http://localhost:3000", "http://localhost:5173"]; // Add your production domain here
+// CORS configuration for allowing all origins (not recommended for production)
 const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST"],
+  origin: "*", // Allow all origins (be cautious in production)
+  methods: ["GET", "POST", "PUT", "DELETE"], // Allow all common HTTP methods
   credentials: true, // Enable credentials for cookies, authorization headers with HTTPS
 };
-
-app.use(cors(corsOptions));
+app.use(cors(corsOptions)); // Apply CORS middleware with the options
 
 app.use(compression({ threshold: 2048 }));
 app.use(express.json()); // Ensure express.json() is used instead of json()
@@ -60,7 +52,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/", routes);
+app.use("/", routes); // Assuming routes are defined in a separate routes.js file
 
 // Improved global error handler
 app.use((err, req, res, next) => {
