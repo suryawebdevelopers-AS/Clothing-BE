@@ -13,8 +13,8 @@ const productSchema = new Schema({
   image2: { type: Buffer }, // Change type to Buffer
   image3: { type: Buffer }, // Change type to Buffer
   image4: { type: Buffer }, // Change type to Buffer
-  category: { type: String, required: true },
-  subCategory: { type: String, required: true },
+  category: { type: String },
+  subCategory: { type: String },
 });
 
 const Product = model("Product", productSchema);
