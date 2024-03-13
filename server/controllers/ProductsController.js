@@ -142,24 +142,36 @@ export const getProductById = async (req, res) => {
   }
 };
 
+
+
 export const updateProductById = async (req, res) => {
   const { id } = req.params;
+
   try {
-    const product = await Product.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const product = await Product.findById(id);
 
     if (!product) {
       return res.status(404).json({ error: "Product not found" });
     }
 
-    console.log("Product updated successfully by ID:", product);
-    res.status(200).json(product);
+    // Only update the specified fields in the request body
+    const updatedFields = {};
+    Object.keys(req.body).forEach((field) => {
+      updatedFields[field] = req.body[field];
+    });
+
+    const updatedProduct = await Product.findByIdAndUpdate(id, updatedFields, {
+      new: true,
+    });
+
+    console.log("Product updated successfully by ID:", updatedProduct);
+    res.status(200).json(updatedProduct);
   } catch (error) {
     console.error("Error updating product:", error.message);
-    res.status(500).json({ error: "Error updating product" });
+    res.status(400).json({ error: "Error updating product" });
   }
 };
+
 
 export const deleteProductById = async (req, res) => {
   const { id } = req.params; // Access the ID from the request parameters
