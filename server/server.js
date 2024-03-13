@@ -15,7 +15,7 @@ const server = http.createServer(app);
 // CORS configuration for allowing all origins (not recommended for production)
 const corsOptions = {
   origin: "*", // Allow all origins (be cautious in production)
-  methods: ["GET", "POST", "PUT", "DELETE"], // Allow all common HTTP methods
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"], // Allow all common HTTP methods
   credentials: true, // Enable credentials for cookies, authorization headers with HTTPS
 };
 app.use(cors(corsOptions)); // Apply CORS middleware with the options
