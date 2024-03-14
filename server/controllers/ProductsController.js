@@ -161,12 +161,10 @@ export const updateProductField = async (req, res) => {
       const updatedProduct = await existingProduct.save();
 
       console.log("Product updated successfully");
-      res
-        .status(200)
-        .json({
-          message: "Product updated successfully",
-          Product: updatedProduct,
-        });
+      res.status(200).json({
+        message: "Product updated successfully",
+        Product: updatedProduct,
+      });
     } catch (error) {
       console.error("Error saving updated Product:", error);
       console.log("Error updating Product in inventory");
