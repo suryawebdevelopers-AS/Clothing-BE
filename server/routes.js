@@ -15,7 +15,7 @@ const router = express.Router();
 router.post("/addproduct", createProduct);
 router.get("/getallproduct", getAllProducts);
 router.get("getproduct/:id", getProductById);
-router.patch("updateproduct/:id", updateProductById);
+router.put("updateproduct/:id", updateItemField);
 router.delete("/products/:id", deleteProductById);
 
 // Define routes with clear comments

@@ -141,30 +141,44 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Error fetching product" });
   }
 };
-export const updateProductById = async (req, res) => {
+
+export const updateItemField = async (req, res) => {
   try {
-    const { id, fieldName, fieldValue } = req.body; // Extract fields from body
+    const { itemId } = req.params;
+    const updates = req.body;
 
-    const product = await Product.findById(id);
+    const existingItem = await ItemModel.findById(itemId);
 
-    if (!product) {
-      return res.status(404).json({ error: "Product not found" });
+    if (!existingItem) {
+      return res.status(404).json({ message: "Item not found" });
     }
 
-    // Validate field name (add checks for valid fields here)
-    if (!validFieldNames.includes(fieldName)) {
-      return res.status(400).json({ error: "Invalid field name" });
+    // Update item fields based on user input
+    Object.assign(existingItem, updates);
+
+    try {
+      // Attempt to save the updated item
+      const updatedItem = await existingItem.save();
+
+      console.log("Item updated successfully");
+      res
+        .status(200)
+        .json({ message: "Item updated successfully", item: updatedItem });
+    } catch (error) {
+      console.error("Error saving updated item:", error);
+      console.log("Error updating item in inventory");
+      res.status(500).json({ message: "Error updating item in inventory" });
     }
-
-    product[fieldName] = fieldValue; // Update the specified field
-
-    const updatedProduct = await product.save();
-
-    console.log("Product updated successfully with ID:", updatedProduct);
-    res.status(200).json(updatedProduct);
   } catch (error) {
-    console.error("Error updating product:", error.message);
-    res.status(400).json({ error: "Error updating product" });
+    if (error.code === "RequestHeaderFieldsTooLarge") {
+      // Handle 431 error here
+      console.log("Request Header Fields Too Large");
+      res.status(431).json({ message: "Request Header Fields Too Large" });
+    } else {
+      console.error(error);
+      console.log("Error updating item in inventory");
+      res.status(500).json({ message: "Error updating item in inventory" });
+    }
   }
 };
 
