@@ -142,32 +142,35 @@ export const getProductById = async (req, res) => {
   }
 };
 
-export const updateItemField = async (req, res) => {
+export const updateProductField = async (req, res) => {
   try {
-    const { itemId } = req.params;
+    const { ProductId } = req.params;
     const updates = req.body;
 
-    const existingItem = await ItemModel.findById(itemId);
+    const existingProduct = await ProductModel.findById(ProductId);
 
-    if (!existingItem) {
-      return res.status(404).json({ message: "Item not found" });
+    if (!existingProduct) {
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // Update item fields based on user input
-    Object.assign(existingItem, updates);
+    // Update Product fields based on user input
+    Object.assign(existingProduct, updates);
 
     try {
-      // Attempt to save the updated item
-      const updatedItem = await existingItem.save();
+      // Attempt to save the updated Product
+      const updatedProduct = await existingProduct.save();
 
-      console.log("Item updated successfully");
+      console.log("Product updated successfully");
       res
         .status(200)
-        .json({ message: "Item updated successfully", item: updatedItem });
+        .json({
+          message: "Product updated successfully",
+          Product: updatedProduct,
+        });
     } catch (error) {
-      console.error("Error saving updated item:", error);
-      console.log("Error updating item in inventory");
-      res.status(500).json({ message: "Error updating item in inventory" });
+      console.error("Error saving updated Product:", error);
+      console.log("Error updating Product in inventory");
+      res.status(500).json({ message: "Error updating Product in inventory" });
     }
   } catch (error) {
     if (error.code === "RequestHeaderFieldsTooLarge") {
@@ -176,8 +179,8 @@ export const updateItemField = async (req, res) => {
       res.status(431).json({ message: "Request Header Fields Too Large" });
     } else {
       console.error(error);
-      console.log("Error updating item in inventory");
-      res.status(500).json({ message: "Error updating item in inventory" });
+      console.log("Error updating Product in inventory");
+      res.status(500).json({ message: "Error updating Product in inventory" });
     }
   }
 };
