@@ -5,7 +5,7 @@ import {
   createProduct,
   getAllProducts,
   getProductById,
-  updateProductById,
+  updateItemField,
   deleteProductById,
 } from "./controllers/ProductsController.js";
 
