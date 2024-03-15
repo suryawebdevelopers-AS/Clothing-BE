@@ -147,15 +147,29 @@ export const updateProductField = async (req, res) => {
     const { productId } = req.params;
     const { field, value } = req.body; // field and value to update
 
+    // Define allowed fields that can be updated
+    const allowedFields = [
+      "productName",
+      "price",
+      "selectedSizes",
+      "color",
+      "description",
+      "fabric",
+      "fit",
+      "washCare",
+      "category",
+      "subCategory",
+    ];
+
+    // Check if the field is allowed to be updated
+    if (!allowedFields.includes(field)) {
+      return res.status(400).json({ message: "Invalid field to update" });
+    }
+
     const existingProduct = await Product.findById(productId);
 
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
-    }
-
-    // Check if the field to update exists in the schema
-    if (!(field in existingProduct.schema.paths)) {
-      return res.status(400).json({ message: "Invalid field to update" });
     }
 
     // Update the specified field with the new value
