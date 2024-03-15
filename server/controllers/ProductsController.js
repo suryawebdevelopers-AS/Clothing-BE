@@ -153,6 +153,11 @@ export const updateProductField = async (req, res) => {
       return res.status(404).json({ message: "Product not found" });
     }
 
+    // Check if the field to update exists in the schema
+    if (!(field in existingProduct.schema.paths)) {
+      return res.status(400).json({ message: "Invalid field to update" });
+    }
+
     // Update the specified field with the new value
     existingProduct[field] = value;
 
