@@ -144,17 +144,17 @@ export const getProductById = async (req, res) => {
 
 export const updateProductField = async (req, res) => {
   try {
-    const { ProductId } = req.params;
-    const updates = req.body;
+    const { productId } = req.params;
+    const { field, value } = req.body; // field and value to update
 
-    const existingProduct = await ProductModel.findById(ProductId);
+    const existingProduct = await Product.findById(productId);
 
     if (!existingProduct) {
       return res.status(404).json({ message: "Product not found" });
     }
 
-    // Update Product fields based on user input
-    Object.assign(existingProduct, updates);
+    // Update the specified field with the new value
+    existingProduct[field] = value;
 
     try {
       // Attempt to save the updated Product
@@ -163,7 +163,7 @@ export const updateProductField = async (req, res) => {
       console.log("Product updated successfully");
       res.status(200).json({
         message: "Product updated successfully",
-        Product: updatedProduct,
+        product: updatedProduct,
       });
     } catch (error) {
       console.error("Error saving updated Product:", error);
@@ -171,15 +171,9 @@ export const updateProductField = async (req, res) => {
       res.status(500).json({ message: "Error updating Product in inventory" });
     }
   } catch (error) {
-    if (error.code === "RequestHeaderFieldsTooLarge") {
-      // Handle 431 error here
-      console.log("Request Header Fields Too Large");
-      res.status(431).json({ message: "Request Header Fields Too Large" });
-    } else {
-      console.error(error);
-      console.log("Error updating Product in inventory");
-      res.status(500).json({ message: "Error updating Product in inventory" });
-    }
+    console.error(error);
+    console.log("Error updating Product in inventory");
+    res.status(500).json({ message: "Error updating Product in inventory" });
   }
 };
 

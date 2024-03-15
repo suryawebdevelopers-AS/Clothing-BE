@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
   });
 });
 
-app.use("/", routes); // Assuming routes are defined in a separate routes.js file
+app.use("/", routes);
 
 // Improved global error handler
 app.use((err, req, res, next) => {
