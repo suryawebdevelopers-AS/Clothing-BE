@@ -1,6 +1,6 @@
-const mongoose = require("mongoose"); // Assuming Mongoose is imported
+import { Schema, model } from "mongoose"; // Assuming Mongoose is imported
 
-const productSchema = new mongoose.Schema({
+const productSchema = new Schema({
   productName: { type: String, required: true },
   price: { type: Number, required: true, min: 0.01 },
   selectedSizes: { type: [String], required: true },
@@ -9,12 +9,12 @@ const productSchema = new mongoose.Schema({
   fabric: { type: String, required: true },
   fit: { type: String, required: true },
   washCare: { type: String, required: true },
-  image1: { type: mongoose.Schema.Types.Buffer, required: true },
-  image2: { type: mongoose.Schema.Types.Buffer, required: true },
-  image3: { type: mongoose.Schema.Types.Buffer, required: true },
-  image4: { type: mongoose.Schema.Types.Buffer, required: true },
+  image1: { type: Schema.Types.Buffer, required: true },
+  image2: { type: Schema.Types.Buffer, required: true },
+  image3: { type: Schema.Types.Buffer, required: true },
+  image4: { type: Schema.Types.Buffer, required: true },
   category: { type: String, required: true },
   subCategory: { type: String, required: true },
 });
 
-module.exports = mongoose.model("Product", productSchema); // Export the model
+export default model("Product", productSchema); // Export the model
