@@ -1,22 +1,20 @@
-import { Schema, model } from "mongoose";
+const mongoose = require("mongoose"); // Assuming Mongoose is imported
 
-const productSchema = new Schema({
+const productSchema = new mongoose.Schema({
   productName: { type: String, required: true },
-  price: { type: Number, required: true },
-  selectedSizes: [String],
-  color: String,
-  description: String,
-  fabric: String,
-  fit: String,
-  washCare: String,
-  image1: { type: Buffer }, // Change type to Buffer
-  image2: { type: Buffer }, // Change type to Buffer
-  image3: { type: Buffer }, // Change type to Buffer
-  image4: { type: Buffer }, // Change type to Buffer
-  category: { type: String },
-  subCategory: { type: String },
+  price: { type: Number, required: true, min: 0.01 },
+  selectedSizes: { type: [String], required: true },
+  color: { type: String, required: true },
+  description: { type: String, required: true },
+  fabric: { type: String, required: true },
+  fit: { type: String, required: true },
+  washCare: { type: String, required: true },
+  image1: { type: mongoose.Schema.Types.Buffer, required: true },
+  image2: { type: mongoose.Schema.Types.Buffer, required: true },
+  image3: { type: mongoose.Schema.Types.Buffer, required: true },
+  image4: { type: mongoose.Schema.Types.Buffer, required: true },
+  category: { type: String, required: true },
+  subCategory: { type: String, required: true },
 });
 
-const Product = model("Product", productSchema);
-
-export default Product;
+module.exports = mongoose.model("Product", productSchema); // Export the model

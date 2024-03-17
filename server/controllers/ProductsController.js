@@ -144,8 +144,14 @@ export const getProductById = async (req, res) => {
 //update logic to update the product
 export const updateProductField = async (req, res) => {
   try {
+    console.log("Request received to update product field");
+
     const { productId } = req.params;
-    const { field, value } = req.body; // field and value to update
+    console.log("Product ID:", productId);
+
+    const { field, value } = req.body;
+    console.log("Field to update:", field);
+    console.log("New value:", value);
 
     // Define allowed fields that can be updated
     const allowedFields = [
@@ -167,14 +173,18 @@ export const updateProductField = async (req, res) => {
 
     // Check if the field is allowed to be updated
     if (!allowedFields.includes(field)) {
+      console.error("Invalid field to update:", field);
       return res.status(400).json({ message: "Invalid field to update" });
     }
 
     const existingProduct = await Product.findById(productId);
 
     if (!existingProduct) {
+      console.error("Product not found with ID:", productId);
       return res.status(404).json({ message: "Product not found" });
     }
+
+    console.log("Existing product details:", existingProduct);
 
     // Handle image updates separately
     if (field.startsWith("image")) {
@@ -186,27 +196,35 @@ export const updateProductField = async (req, res) => {
             /^data:image\/\w+;base64,/,
             ""
           );
+          console.log("Extracted base64 image data");
+
           // Convert base64 to buffer
           const buffer = Buffer.from(base64DataWithoutPrefix, "base64");
           existingProduct[field] = buffer;
+          console.log("Converted base64 data to buffer for image update");
         } catch (error) {
           console.error("Error converting base64 to buffer:", error.message);
           return res.status(400).json({ message: "Invalid image data format" });
         }
       } else {
         // If not base64, reject the update
+        console.error("Invalid image data format. Must be base64 encoded");
         return res.status(400).json({ message: "Invalid image data format" });
       }
     } else {
       // Update other fields normally
       existingProduct[field] = value;
+      console.log("Updated field:", field, "with new value:", value);
     }
 
     try {
       // Attempt to save the updated Product
       const updatedProduct = await existingProduct.save();
+      console.log(
+        "Product updated successfully. Updated product details:",
+        updatedProduct
+      );
 
-      console.log("Product updated successfully");
       res.status(200).json({
         message: "Product updated successfully",
         product: updatedProduct,
@@ -222,6 +240,7 @@ export const updateProductField = async (req, res) => {
     res.status(500).json({ message: "Error updating Product in inventory" });
   }
 };
+
 //delete logic to delete the product
 export const deleteProductById = async (req, res) => {
   const { id } = req.params; // Access the ID from the request parameters
