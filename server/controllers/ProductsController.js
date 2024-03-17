@@ -141,7 +141,9 @@ export const getProductById = async (req, res) => {
     res.status(500).json({ error: "Error fetching product" });
   }
 };
-//update logic to update the product
+
+// Assuming you have a Product model defined using Mongoose
+
 export const updateProductField = async (req, res) => {
   try {
     console.log("Request received to update product field");
@@ -188,18 +190,36 @@ export const updateProductField = async (req, res) => {
 
     // Handle image updates separately
     if (field.startsWith("image")) {
-      // Check if value is a base64 string
-      if (typeof value === "string" && value.startsWith("data:")) {
+      // Check if value is a string (flexible handling)
+      if (typeof value === "string") {
+        let base64Data;
+        if (value.startsWith("data:")) {
+          // Remove base64 prefix if provided
+          try {
+            const prefixRegex = /^data:image\/\w+;base64,/;
+            base64Data = value.replace(prefixRegex, "");
+            console.log("Extracted base64 image data from data: prefix");
+          } catch (error) {
+            console.error("Error parsing data: prefix:", error.message);
+            return res
+              .status(400)
+              .json({ message: "Invalid image data format" });
+          }
+        } else {
+          // Treat it as direct base64 string
+          base64Data = value;
+          console.log("Received direct base64 image data");
+        }
+
         try {
-          // Remove base64 prefix (e.g., 'data:image/jpeg;base64,')
-          const base64DataWithoutPrefix = value.replace(
-            /^data:image\/\w+;base64,/,
-            ""
-          );
-          console.log("Extracted base64 image data");
+          // Validate base64 string format
+          const base64Regex = /^[a-zA-Z0-9+/]+={0,2}$/;
+          if (!base64Regex.test(base64Data)) {
+            throw new Error("Invalid base64 string format");
+          }
 
           // Convert base64 to buffer
-          const buffer = Buffer.from(base64DataWithoutPrefix, "base64");
+          const buffer = Buffer.from(base64Data, "base64");
           existingProduct[field] = buffer;
           console.log("Converted base64 data to buffer for image update");
         } catch (error) {
@@ -207,8 +227,8 @@ export const updateProductField = async (req, res) => {
           return res.status(400).json({ message: "Invalid image data format" });
         }
       } else {
-        // If not base64, reject the update
-        console.error("Invalid image data format. Must be base64 encoded");
+        // If not a string, reject the update
+        console.error("Invalid image data format. Must be a string");
         return res.status(400).json({ message: "Invalid image data format" });
       }
     } else {
@@ -236,9 +256,7 @@ export const updateProductField = async (req, res) => {
     }
   } catch (error) {
     console.error(error);
-    console.error("Error updating Product in inventory");
-    res.status(500).json({ message: "Error updating Product in inventory" });
-  }
+  } // Added closing curly brace
 };
 
 //delete logic to delete the product
